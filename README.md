@@ -50,29 +50,30 @@ Dentro do PostgreSQL, execute os arquivos na ordem:
 
 1. `sql/etapa3_triggers.sql`
 2. `sql/etapa3_consultas.sql`
-3. `sql/testes_etapa3.sql`
 
 Exemplo com `psql`:
 
 ```bash
 psql -U postgres -d gestao_academica -f sql/etapa3_triggers.sql
 psql -U postgres -d gestao_academica -f sql/etapa3_consultas.sql
-psql -U postgres -d gestao_academica -f sql/testes_etapa3.sql
 ```
 
 ## Estrutura do projeto
 
 ```text
-pibd-etapa3-gestao-academica/
+.
 ├── app.py
 ├── database.py
 ├── requirements.txt
 ├── README.md
 ├── .env.example
 ├── sql/
+│   ├── etapa2_01_tabelas.sql
+│   ├── etapa2_02_indices.sql
+│   ├── etapa2_03_dados.sql
+│   ├── etapa2_04_procedures_functions_triggers.sql
 │   ├── etapa3_consultas.sql
-│   ├── etapa3_triggers.sql
-│   └── testes_etapa3.sql
+│   └── etapa3_triggers.sql
 └── pages/
     ├── alunos.py
     ├── matriculas_notas.py
