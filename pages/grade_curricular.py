@@ -1,6 +1,6 @@
 import streamlit as st
 
-from database import run_query
+from database import execute_command, run_query
 
 
 st.title("Grade Curricular")
@@ -19,6 +19,18 @@ try:
 except Exception as error:
     st.error(f"Erro ao carregar cursos: {error}")
     cursos_df = None
+
+try:
+    disciplinas_cadastro_df = run_query(
+        """
+        SELECT cod_disc, nome
+        FROM disciplina
+        ORDER BY nome
+        """
+    )
+except Exception as error:
+    st.error(f"Erro ao carregar disciplinas para cadastro de pre-requisito: {error}")
+    disciplinas_cadastro_df = None
 
 if cursos_df is not None and not cursos_df.empty:
     curso_options = {
@@ -92,3 +104,53 @@ if cursos_df is not None and not cursos_df.empty:
         st.error(f"Erro ao listar equivalencias: {error}")
 else:
     st.info("Nao ha cursos disponiveis para consulta.")
+
+st.subheader("Cadastrar pre-requisito")
+st.write(
+    'Para testar o bloqueio do trigger, selecione "Algoritmos I" como disciplina e '
+    '"Banco de Dados" como pre-requisito.'
+)
+st.write(
+    "Como ja existe Banco de Dados exigindo Algoritmos I, o trigger deve impedir o "
+    "relacionamento inverso."
+)
+
+if disciplinas_cadastro_df is not None and not disciplinas_cadastro_df.empty:
+    disciplina_options = {
+        f"{row.nome} ({row.cod_disc})": row.cod_disc
+        for row in disciplinas_cadastro_df.itertuples()
+    }
+    disciplina_labels = ["Selecione uma disciplina", *disciplina_options.keys()]
+    pre_requisito_labels = [
+        "Selecione um pre-requisito",
+        *disciplina_options.keys(),
+    ]
+
+    with st.form("form_cadastro_pre_requisito"):
+        disciplina_label = st.selectbox("Disciplina", disciplina_labels, index=0)
+        pre_requisito_label = st.selectbox(
+            "Disciplina pre-requisito", pre_requisito_labels, index=0
+        )
+        cadastrar_pre_requisito = st.form_submit_button("Cadastrar pre-requisito")
+
+    if cadastrar_pre_requisito:
+        try:
+            execute_command(
+                """
+                INSERT INTO DISCIPLINA_PRE_REQUISITO (cod_disc, cod_disc_pre)
+                VALUES (%s, %s)
+                """,
+                [
+                    None
+                    if disciplina_label == "Selecione uma disciplina"
+                    else disciplina_options[disciplina_label],
+                    None
+                    if pre_requisito_label == "Selecione um pre-requisito"
+                    else disciplina_options[pre_requisito_label],
+                ],
+            )
+            st.success("Pre-requisito cadastrado com sucesso.")
+        except Exception as error:
+            st.error(f"Erro ao cadastrar pre-requisito: {error}")
+else:
+    st.info("Nao ha disciplinas disponiveis para cadastrar pre-requisitos.")
