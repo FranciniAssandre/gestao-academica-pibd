@@ -1,6 +1,6 @@
 import streamlit as st
 
-from database import run_query
+from database import execute_command, run_query
 
 
 st.title("Relatorios")
@@ -75,3 +75,69 @@ try:
     st.dataframe(report_df, use_container_width=True, hide_index=True)
 except Exception as error:
     st.error(f"Erro ao gerar relatorio: {error}")
+
+st.subheader("Gerenciar departamentos")
+
+try:
+    departamentos_df = run_query(
+        """
+        SELECT
+            dep.cod_depar,
+            dep.nome,
+            dep.sigla,
+            COUNT(d.cod_disc) AS total_disciplinas
+        FROM departamento dep
+        LEFT JOIN disciplina d ON d.cod_depar = dep.cod_depar
+        GROUP BY dep.cod_depar, dep.nome, dep.sigla
+        ORDER BY dep.nome
+        """
+    )
+    st.dataframe(departamentos_df, use_container_width=True, hide_index=True)
+except Exception as error:
+    st.error(f"Erro ao carregar departamentos: {error}")
+    departamentos_df = None
+
+if departamentos_df is not None and not departamentos_df.empty:
+    departamento_options = {
+        f"{row.nome} ({row.sigla})": row.cod_depar
+        for row in departamentos_df.itertuples()
+    }
+
+    departamento_label = st.selectbox(
+        "Selecione o departamento",
+        list(departamento_options.keys()),
+    )
+    departamento_selecionado = departamentos_df.loc[
+        departamentos_df["cod_depar"] == departamento_options[departamento_label]
+    ].iloc[0]
+
+    st.write(f"Nome: {departamento_selecionado['nome']}")
+    st.write(f"Sigla: {departamento_selecionado['sigla']}")
+    st.write(
+        "Quantidade de disciplinas vinculadas: "
+        f"{departamento_selecionado['total_disciplinas']}"
+    )
+
+    with st.form("form_excluir_departamento"):
+        confirmar_exclusao = st.checkbox(
+            "Confirmo que desejo tentar excluir este departamento."
+        )
+        excluir_departamento = st.form_submit_button("Excluir departamento")
+
+    if excluir_departamento:
+        if not confirmar_exclusao:
+            st.error("Confirme a exclusao antes de continuar.")
+        else:
+            try:
+                execute_command(
+                    """
+                    DELETE FROM DEPARTAMENTO
+                    WHERE cod_depar = %s
+                    """,
+                    [departamento_options[departamento_label]],
+                )
+                st.success("Departamento excluido com sucesso.")
+            except Exception as error:
+                st.error(f"Erro ao excluir departamento: {error}")
+else:
+    st.info("Nao ha departamentos disponiveis para gerenciamento.")

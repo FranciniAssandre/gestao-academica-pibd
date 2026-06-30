@@ -110,7 +110,7 @@ if alunos_df is not None and not alunos_df.empty:
     with st.form("form_telefone_aluno"):
         aluno_label = st.selectbox("Aluno", list(aluno_options.keys()))
         numero_tel = st.text_input("Numero do telefone")
-        tipo_tel = st.selectbox("Tipo", ["celular", "residencial", "comercial", "recado"])
+        tipo_tel = st.selectbox("Tipo", ["Celular", "Residencial", "Comercial"])
         add_phone = st.form_submit_button("Adicionar telefone")
 
     if add_phone:
