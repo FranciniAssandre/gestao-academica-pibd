@@ -32,7 +32,20 @@ DB_USER=postgres
 DB_PASSWORD=sua_senha
 ```
 
+## Ambiente virtual `.venv`
+
+Antes de instalar as dependencias e iniciar a aplicacao, crie e ative o ambiente virtual:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Depois de ativado, o terminal deve indicar que o ambiente `.venv` esta em uso.
+
 ## Instalacao das dependencias
+
+Com o ambiente virtual ativado, instale as dependencias:
 
 ```bash
 pip install -r requirements.txt
@@ -40,8 +53,10 @@ pip install -r requirements.txt
 
 ## Execucao da aplicacao
 
+Para iniciar a aplicacao, mantenha o ambiente virtual ativado e execute:
+
 ```bash
-streamlit run app.py
+python3 -m streamlit run app.py
 ```
 
 ## Como rodar os scripts SQL da Etapa 3
